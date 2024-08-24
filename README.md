@@ -1,1 +1,1 @@
-flask generated web app
+django generated web app
