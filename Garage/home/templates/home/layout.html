@@ -25,7 +25,7 @@
 
         <nav class="bg-light border navbar navbar-expand-md navbar-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="/">
+                <a class="navbar-brand" href="/home/">
                     <img src="{% static 'logo.png'%}" width="100" height="auto" alt="logo">
                 </a>
                 
@@ -33,7 +33,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
-                    <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="search" placeholder="search" type="text">
+                    <input autocomplete="off" class="form-control mx-auto w-auto" name="search" placeholder="search" type="text">
                     {% if session %}
                         <ul class="navbar-nav ms-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
