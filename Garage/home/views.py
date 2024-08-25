@@ -1,6 +1,10 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from cs50 import SQL
+
+
+db = SQL("sqlite:///db.sqlite3")
 
 
 # Create your views here.
