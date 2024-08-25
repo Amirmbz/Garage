@@ -18,4 +18,11 @@
         <button class="btn btn-primary" type="submit">Register</button>
     </form>
 
+    {% if error %}
+        <div>
+            <p textaling:"center">{{ error }}</p>
+        </div>
+    {% endif %}
+
+
 {% endblock %}

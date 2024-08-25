@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from cs50 import SQL
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 db = SQL("sqlite:///db.sqlite3")
@@ -13,7 +14,60 @@ def index(request):
 
 
 def register(request):
-    return render(request, 'home/register.html')
+    """Register user"""
+    # Forget any user_id
+    request.session.clear()
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Assinging username and password
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # Ensure username and password was submitted
+        if not username or not password:
+            return HttpResponseRedirect(reverse("home:register", {
+                "error": "enter username and password"
+            }))
+
+        # Ensure confirmation was submitted
+        elif request.form.get("confirmation") != password:
+            return HttpResponseRedirect(reverse("home:register", {
+                "error": "password and confirmation didn't match"
+            }))
+
+        # Ensure username isn't already in the database
+        elif len(db.execute(
+            "SELECT * FROM users WHERE username = ?",
+            username
+        )) != 0:
+            return HttpResponseRedirect(reverse("home:register", {
+                "error": "username is taken"
+            }))
+
+        # Insert the username and password into database
+        transaction = db.execute(
+            "INSERT INTO users (username, hash) VALUES (?, ?)",
+            username,
+            generate_password_hash(password)
+        )
+
+        # Query database for the username that we just have created
+        transaction = db.execute(
+            "SELECT * FROM users WHERE username = ?",
+            username
+        )
+
+        # Remember which user has logged in
+        request.session["user_id"] = transaction[0]["id"]
+
+        # Redirect user to home page
+        return HttpResponseRedirect("home:index")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render(request, 'home/register.html')
 
 
 def login(request):
