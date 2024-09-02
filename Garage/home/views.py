@@ -1,11 +1,8 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from django.urls import reverse
-from cs50 import SQL
-from werkzeug.security import check_password_hash, generate_password_hash
-
-
-db = SQL("sqlite:///garage.db")
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.hashers import make_password
 
 
 # Create your views here.
@@ -22,55 +19,46 @@ def register(request):
     if request.method == "POST":
 
         # Assinging username and password
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
         # Ensure username and password was submitted
         if not username or not password:
-            return HttpResponseRedirect(reverse("home:register", {
+            return render(request, "home/register.html", {
                 "error": "enter username and password"
-            }))
+            })
 
         # Ensure confirmation was submitted
-        elif request.form.get("confirmation") != password:
-            return HttpResponseRedirect(reverse("home:register", {
+        elif request.POST.get("confirmation") != password:
+            return render(request, "home/register.html", {
                 "error": "password and confirmation didn't match"
-            }))
+            })
 
         # Ensure username isn't already in the database
-        elif len(db.execute(
-            "SELECT * FROM users WHERE username = ?",
-            username
-        )) != 0:
-            return HttpResponseRedirect(reverse("home:register", {
-                "error": "username is taken"
-            }))
+        if User.objects.filter(username=username).exists():
+            return render(request, "home/register.html", {
+                "error": "Username is already taken."
+            })
 
         # Insert the username and password into database
-        transaction = db.execute(
-            "INSERT INTO users (username, hash) VALUES (?, ?)",
-            username,
-            generate_password_hash(password)
-        )
+        user = User.objects.create(
+            username=username,
+            password=make_password(password)
+            )
+        user.save()
 
-        # Query database for the username that we just have created
-        transaction = db.execute(
-            "SELECT * FROM users WHERE username = ?",
-            username
-        )
-
-        # Remember which user has logged in
-        request.session["user_id"] = transaction[0]["id"]
+        # Log the user in
+        login(request, user)
 
         # Redirect user to home page
-        return HttpResponseRedirect("home:index")
+        return render(request, 'home/index.html')
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render(request, 'home/register.html')
 
 
-def login(request):
+def signin(request):
     """Log user in"""
 
     # Forget any user_id
@@ -79,34 +67,30 @@ def login(request):
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
         # Assinging username and password
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
         # Ensure username and password was submitted
         if not username or not password:
-            return HttpResponseRedirect(reverse("home:login", {
+            return render(request, 'home/login.html', {
                 "error": "enter username and password"
-            }))
+            })
 
-        # Query database for username
-        transaction = db.execute(
-            "SELECT * FROM users WHERE username = ?",
-            username
-        )
+        # Check the authentication
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
 
-        # Ensure username exists and password is correct
-        if len(transaction) != 1 or not check_password_hash(
-            transaction[0]["hash"], password
-        ):
-            return HttpResponseRedirect(reverse("home:login", {
-                "error": "invalid username and/or password"
-            }))
+            # Log the user in
+            login(request, user)
 
-        # Remember which user has logged in
-        request.session["user_id"] = transaction[0]["id"]
+            # Redirect user to home page
+            return render(request, 'home/index.html')
+        else:
 
-        # Redirect user to home page
-        return HttpResponseRedirect("home:index")
+            # Show an error and redirect user to home page
+            return render(request, 'home/login.html', {
+                "error": "enter username and password"
+            })
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -120,4 +104,4 @@ def logout(request):
     request.session.clear()
 
     # Redirect user to login form
-    return HttpResponseRedirect("home:index")
+    return redirect("home:index")
