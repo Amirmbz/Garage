@@ -1,7 +1,6 @@
-from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.hashers import make_password
 
 
@@ -97,11 +96,11 @@ def signin(request):
         return render(request, 'home/login.html')
 
 
-def logout(request):
+def signout(request):
     """Log user out"""
 
     # Forget any user_id
-    request.session.clear()
+    logout(request)
 
     # Redirect user to login form
     return redirect("home:index")
