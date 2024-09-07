@@ -88,7 +88,7 @@ def signin(request):
 
             # Show an error and redirect user to home page
             return render(request, 'home/login.html', {
-                "error": "enter username and password"
+                "error": "username and/or password is incorrect"
             })
 
     # User reached route via GET (as by clicking a link or via redirect)
@@ -103,4 +103,4 @@ def signout(request):
     logout(request)
 
     # Redirect user to login form
-    return redirect("home:index")
+    return render(request, 'home/login.html')
