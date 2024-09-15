@@ -12,6 +12,7 @@ def index(request):
 def register(request):
     """Register user"""
     # Forget any user_id
+    logout(request)
     request.session.clear()
 
     # User reached route via POST (as by submitting a form via POST)
@@ -49,18 +50,19 @@ def register(request):
         # Log the user in
         login(request, user)
 
-        # Redirect user to home page
-        return render(request, 'home/index.html')
+        # Redirect user to home page render(request, 'home/index.html')
+        return redirect('index')
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render(request, 'home/register.html')
 
 
-def signin(request):
+def log_in(request):
     """Log user in"""
 
     # Forget any user_id
+    logout(request)
     request.session.clear()
 
     # User reached route via POST (as by submitting a form via POST)
@@ -83,7 +85,7 @@ def signin(request):
             login(request, user)
 
             # Redirect user to home page
-            return render(request, 'home/index.html')
+            return redirect('index')
         else:
 
             # Show an error and redirect user to home page
@@ -96,11 +98,11 @@ def signin(request):
         return render(request, 'home/login.html')
 
 
-def signout(request):
+def log_out(request):
     """Log user out"""
 
     # Forget any user_id
     logout(request)
 
     # Redirect user to login form
-    return render(request, 'home/login.html')
+    return redirect('log_in')

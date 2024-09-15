@@ -34,7 +34,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
                     <input autocomplete="off" class="form-control mx-auto w-auto" name="search" placeholder="search" type="text">
-                    {% if session %}
+                    {% if user.is_authenticated %}
                         <ul class="navbar-nav ms-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
                         </ul>
