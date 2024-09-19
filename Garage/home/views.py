@@ -106,3 +106,21 @@ def log_out(request):
 
     # Redirect user to login form
     return redirect('log_in')
+
+
+def sell(request):
+    """"Present a product for sale"""
+
+    if request.method == "POST":
+        return render(request, 'home/sell.html')
+    else:
+        return render(request, 'home/sell.html')
+
+
+def buy(request):
+    """"Present a product for purchase"""
+
+    if request.method == "POST":
+        return render(request, 'home/buy.html')
+    else:
+        return render(request, 'home/buy.html')
