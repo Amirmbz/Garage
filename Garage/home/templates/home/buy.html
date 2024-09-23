@@ -7,13 +7,17 @@
 {% block main %}
     <form action="/buy/" method="post">
         {% csrf_token %}
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
-        </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
-        </div>
-        <button class="btn btn-primary" type="submit">Log In</button>
+        {% for prod in product%}
+            <div class="mb-3">
+                <label class="form-label">Product Name</label>
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="count" value={{prod.name}} type="text" disabled>
+                <label class="form-label">Product Price</label>
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="count" value={{prod.price}} type="number" disabled>
+                <label class="form-label">How many you want</label>
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="count" placeholder="Inter a price" type="number" min="1">
+            </div>
+            <button class="btn btn-primary" type="submit">buy</button>
+        {% endfor %}
     </form>
     {% if error %}
         <div>

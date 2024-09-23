@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.hashers import make_password
+from .models import Product
 
 
 # Create your views here.
@@ -54,8 +55,7 @@ def register(request):
         return redirect('index')
 
     # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render(request, 'home/register.html')
+    return render(request, 'home/register.html')
 
 
 def log_in(request):
@@ -86,16 +86,14 @@ def log_in(request):
 
             # Redirect user to home page
             return redirect('index')
-        else:
 
-            # Show an error and redirect user to home page
-            return render(request, 'home/login.html', {
-                "error": "username and/or password is incorrect"
-            })
+        # Show an error and redirect user to home page
+        return render(request, 'home/login.html', {
+            "error": "username and/or password is incorrect"
+        })
 
     # User reached route via GET (as by clicking a link or via redirect)
-    else:
-        return render(request, 'home/login.html')
+    return render(request, 'home/login.html')
 
 
 def log_out(request):
@@ -112,9 +110,42 @@ def sell(request):
     """"Present a product for sale"""
 
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect('log_in')
+
+        name = request.POST.get('name')
+        category = request.POST.get('category')
+        price = request.POST.get('price')
+        quantity = request.POST.get('quantity')
+
+        # checking
+        if not name or not price or not quantity:
+            return render(request, 'home/sell.html', {
+                "error": "enter name, price and quantity"
+            })
+        if not category:
+            category = request.POST.get('catname')
+            if not category:
+                return render(request, 'home/sell.html', {
+                    "error": "enter category"
+                })
+            if Product.objects.filter(category__iexact=category):
+                return render(request, 'home/sell.html', {
+                    "error": "Evidently we have that category"
+                })
+        Product.objects.create(
+            user=request.user,
+            name=name,
+            category=category,
+            price=price,
+            quantity=quantity
+            )
+
         return render(request, 'home/sell.html')
-    else:
-        return render(request, 'home/sell.html')
+
+    return render(request, 'home/sell.html', {
+        "product": Product.objects.all()
+    })
 
 
 def buy(request):
@@ -122,5 +153,7 @@ def buy(request):
 
     if request.method == "POST":
         return render(request, 'home/buy.html')
-    else:
-        return render(request, 'home/buy.html')
+
+    return render(request, 'home/buy.html', {
+        "product": Product.objects.all()
+    })
