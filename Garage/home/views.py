@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.hashers import make_password
 from .models import Product
+from django.http import HttpResponse
 
 
 # Create your views here.
@@ -144,7 +145,10 @@ def sell(request):
         return render(request, 'home/sell.html')
 
     return render(request, 'home/sell.html', {
-        "product": Product.objects.all()
+        "category": Product.objects.values_list(
+            'category',
+            flat=True
+            ).distinct()
     })
 
 
@@ -152,8 +156,22 @@ def buy(request):
     """"Present a product for purchase"""
 
     if request.method == "POST":
-        return render(request, 'home/buy.html')
+        name = request.POST.get('name')
+        quantity = (request.POST.get('quantity'))
+        product = get_object_or_404(Product, name=name)
 
-    return render(request, 'home/buy.html', {
-        "product": Product.objects.all()
+        if product.quantity >= quantity:
+            product.quantity -= quantity
+            product.save()
+            return HttpResponse("Product sold successfully!")
+        else:
+            return HttpResponse("Not enough stock available!")
+
+    return render(request, 'home/buy.html', {'product': Product.objects.all()})
+
+
+def profile(request, product_id):
+    product = Product.objects.get(id=product_id)
+    return render(request, 'home/profile.html', {
+        "product": product
     })
