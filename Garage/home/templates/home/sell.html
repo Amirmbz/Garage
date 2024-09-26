@@ -13,7 +13,7 @@
         <div class="mb-3">
             <select class="form-select mx-auto w-auto" id="category" name="category" onchange="showInput()">
                 <option value="" disabled selected>Select Product Category</option>
-                <option >Write A New Category</option>
+                <option value="0">Write A New Category</option>
                 {% for cat in category %}
                     <option value="{{cat}}">{{ cat }}</option>
                 {% endfor %}

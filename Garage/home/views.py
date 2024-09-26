@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.hashers import make_password
-from .models import Product
+from .models import Product, Category
 from django.http import HttpResponse
 
 
@@ -124,20 +124,21 @@ def sell(request):
             return render(request, 'home/sell.html', {
                 "error": "enter name, price and quantity"
             })
-        if not category:
+        if category == "0":
             category = request.POST.get('catname')
             if not category:
                 return render(request, 'home/sell.html', {
                     "error": "enter category"
                 })
-            if Product.objects.filter(category__iexact=category):
+            if Category.objects.filter(name__iexact=category):
                 return render(request, 'home/sell.html', {
                     "error": "Evidently we have that category"
                 })
+            Category.objects.create(name=category)
         Product.objects.create(
             user=request.user,
             name=name,
-            category=category,
+            category=Category.objects.get(name=category),
             price=price,
             quantity=quantity
             )
